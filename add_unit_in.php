@@ -47,7 +47,7 @@
    include('dbconfig.php');
   //set all variables to null so that they do not hold valiues from previous entries 
   $br = null; 
-  $unitNum = null; 
+  $stock = null; 
   $customer = null; 
   $clean_tank = null; 
   $check_in_pics = null; 
@@ -69,7 +69,7 @@
 		//store each value in a variable for each unti by using a loop 
 		foreach($units as $unit){
 			$br = $unit['br'];
-			$unitNum = $unit['unitNum']; 
+			$stock = $unit['stock']; 
 			$customer = $unit['customer']; 
                         $clean_tank = $unit['clean_tank'];
                         $check_in_pics = $unit['check_in_pics'];
@@ -95,7 +95,7 @@
                                     
                                     <div class="form-group row">
 
-                                        <label class="col-lg-3 col-form-label form-control-label"   for="br">BR.</label>
+                                        <label class="col-lg-3 col-form-label form-control-label"   for="br">BR. *</label>
                                         <div class="col-lg-9"> 
                                            <input  name="br" class="form-control" id="br" rows="" placeholder="Enter the Branch number"  value="<?php echo $br ; ?> " />
                                         </div>
@@ -104,16 +104,16 @@
                                     <div class="form-group row"> 
                     
                                         
-                                        <label class="col-lg-3 col-form-label form-control-label"  for="unitNum" >Unit</label>
+                                        <label class="col-lg-3 col-form-label form-control-label"  for="stock" >Stock# *</label>
                                         <div class="col-lg-9">
-                                            <input name="unitNum" id="unitNum" class="form-control" placeholder="Enter the Unit number"  value="<?php echo $unitNum ; ?> " />
+                                            <input name="stock" id="stock" class="form-control" placeholder="Enter the Unit number"  value="<?php echo $stock ; ?> " />
                                         </div>
                                           
                                      </div>
                 
                     <div class="form-group row">      
                         
-                            <label class="col-lg-3 col-form-label form-control-label"  for="customer">Customer</label>
+                            <label class="col-lg-3 col-form-label form-control-label"  for="customer">Customer *</label>
                             <div class="col-lg-9">
                             <input name="customer"  class="form-control" id="customer" placeholder="Enter the Customer" value="<?php echo $customer ; ?> " />
                             </div>

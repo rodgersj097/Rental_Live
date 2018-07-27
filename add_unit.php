@@ -49,7 +49,7 @@
 	include('dbconfig.php');
 	//init variabes and keep them null to not bring over variables from last entery
 	$br = null; 
-	$unitNum = null; 
+	$stock = null; 
         $OC = null; 
 	$moving_date = null; 
         $customer = null; 
@@ -84,7 +84,7 @@
 		//store each value in a variable for each unti by using a loop 
 		foreach($units as $unit){
 			$br = $unit['br'];
-			$unitNum = $unit['unitNum']; 
+			$stock = $unit['stock']; 
             $OC = $unit['OC'];
 			$moving_date = $unit['moving_date']; 
 			$customer = $unit['customer']; 
@@ -128,9 +128,9 @@
                                         </div>
 
                                         
-                                    <label class=" col-lg-2 col-form-label form-control-label" for="unitNum" >Unit</label>
+                                    <label class=" col-lg-2 col-form-label form-control-label" for="stock" >Unit</label>
                                     <div class="col-lg-4"> 
-                                        <input name="unitNum" id="unitNum" class="form-control" placeholder="Enter the Unit number" required value="<?php echo $unitNum ; ?> " />
+                                        <input name="stock" id="stock" class="form-control" placeholder="Enter the Unit number" required value="<?php echo $stock ; ?> " />
                                     </div>
                                       </div>
                                     <div class="form-group row "> 

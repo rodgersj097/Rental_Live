@@ -24,8 +24,8 @@ ini_set("display_errors",1);
 //store form values in variable 
 $br = $_POST['br'];
    
-If(isset($_POST['unitNum'])){
-$unitNum = $_POST['unitNum'] ;
+If(isset($_POST['stock'])){
+$stock = $_POST['stock'] ;
     }
 If(isset($_POST['customer'])){
 $binder = $_POST['customer'];
@@ -55,7 +55,7 @@ if(empty($br)){
     $flag = false; 
 }
 
-if(empty($unitNum)){
+if(empty($stock)){
     echo 'Unit is required<br />';
     $flag = false; 
 }
@@ -70,18 +70,16 @@ if(empty($unitNum)){
 if($flag){
    
     try{
-        $conn = new PDO("sqlsrv:Server=SQL-PRD-01; Database=Rentals_Spreadsheet", "sa" , "Truck34sail" ); 
-		$conn->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-    
+        
     
       //IF there is already a entry with the unitID then append that row, if no unitID is found then create a new ID and row. this is how the edit workflow is handled    
     if($unitID > 0 ){
-        $sql = "UPDATE rental_in SET br=:br,unitNum=:unitNum,customer=:customer,clean_tank=:clean_tank,check_in_pics=:check_in_pics,quote=:quote,returned=:returned  where unitID=:unitID"; 
+        $sql = "UPDATE rental_in SET br=:br,stock=:stock,customer=:customer,clean_tank=:clean_tank,check_in_pics=:check_in_pics,quote=:quote,returned=:returned  where unitID=:unitID"; 
 		var_dump($unitID);
 			 
        }
     else{
-         $sql = "INSERT INTO rental_in(br, unitNum, customer, clean_tank,check_in_pics,quote,returned) VALUES (:br, :unitNum, :customer, :clean_tank, :check_in_pics, :quote,:returned)"; 
+         $sql = "INSERT INTO rental_in(br,stock, customer, clean_tank,check_in_pics,quote,returned) VALUES (:br, :stock, :customer, :clean_tank, :check_in_pics, :quote,:returned)"; 
 		 var_dump($unitID); 
           }
         
@@ -93,7 +91,7 @@ if($flag){
     
     //bind named placeholders into variables
     $cmd->bindParam(':br', $br, PDO::PARAM_INT);
-    $cmd->bindParam(':unitNum', $unitNum, PDO::PARAM_INT);
+    $cmd->bindParam(':stock', $stock, PDO::PARAM_INT);
     $cmd->bindParam(':customer', $customer, PDO::PARAM_STR);
     $cmd->bindParam(':clean_tank', $clean_tank, PDO::PARAM_STR); 
     $cmd->bindParam(':check_in_pics', $check_in_pics, PDO::PARAM_STR);

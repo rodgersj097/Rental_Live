@@ -22,8 +22,8 @@
 //store form values in variable 
 $br = $_POST['br'];
    
-If(isset($_POST['unitNum'])){
-$unitNum = $_POST['unitNum'] ;
+If(isset($_POST['stock'])){
+$stock = $_POST['stock'] ;
     }
  if(isset($_POST['OC'])){
      $OC = $_POST['OC'];
@@ -74,12 +74,13 @@ $unitID =$_POST['unitID'];
 //create flag to track completion status of the form 
 $flag = true; 
 
+
 if(empty($br)){
     echo 'BR. is a required Field<br />';
     $flag = false; 
 }
 
-if(empty($unitNum)){
+if(empty($stock)){
     echo 'Unit is a required Field <br />';
     $flag = false; 
 }
@@ -96,14 +97,12 @@ if($flag){
     
       //IF there is already a entry with the unitID then append that unitID, if no unitID is found then create a new ID. this is how the edit workflow is handled    
     if($unitID > 0 ){
-        $sql = "UPDATE rental_item SET br=:br,unitNum=:unitNum,OC=:OC,moving_date=:moving_date,customer=:customer,target_date=:target_date,eta=:eta,lease=:lease,ins=:ins,cvor=:cvor,pymt=:pymt,binder=:binder,check_in=:check_in,check_rec=:check_rec,training=:training,delivery_instructions=:delivery_instructions,notes=:notes where unitID=:unitID";
-        var_dump($unitID);
-		echo'update';
+        $sql = "UPDATE rental_item SET br=:br,stock=:stock,OC=:OC,moving_date=:moving_date,customer=:customer,target_date=:target_date,eta=:eta,lease=:lease,ins=:ins,cvor=:cvor,pymt=:pymt,binder=:binder,check_in=:check_in,check_rec=:check_rec,training=:training,delivery_instructions=:delivery_instructions,notes=:notes where unitID=:unitID";
+      
        }
     else{
-        $sql = "INSERT INTO rental_item (br, unitNum,OC, moving_date, customer, target_date,eta,lease,ins,cvor,pymt,binder,check_in,check_rec,training, delivery_instructions, notes) VALUES (:br, :unitNum, :OC,:moving_date, :customer, :target_date,:eta,:lease,:ins,:cvor,:pymt,:binder,:check_in,:check_rec,:training, :delivery_instructions, :notes)";    
-           var_dump($unitID);
-		   echo'insert';
+        $sql = "INSERT INTO rental_item (br, stock,OC, moving_date, customer, target_date,eta,lease,ins,cvor,pymt,binder,check_in,check_rec,training, delivery_instructions, notes) VALUES (:br, :stock, :OC,:moving_date, :customer, :target_date,:eta,:lease,:ins,:cvor,:pymt,:binder,:check_in,:check_rec,:training, :delivery_instructions, :notes)";    
+        
 		  }
         
  
@@ -114,7 +113,7 @@ if($flag){
    // writeTOFile($sql);
     //bind named placeholders into variables
     $cmd->bindParam(':br', $br, PDO::PARAM_INT);
-    $cmd->bindParam(':unitNum', $unitNum, PDO::PARAM_INT);
+    $cmd->bindParam(':stock', $stock, PDO::PARAM_INT);
     $cmd->bindParam(':OC', $OC, PDO::PARAM_STR);
     $cmd->bindParam(':moving_date', $moving_date, PDO::PARAM_STR);
     $cmd->bindParam(':customer', $customer, PDO::PARAM_STR);

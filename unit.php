@@ -6,7 +6,6 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
-
     <link rel="stylesheet" href="css/main.css" type="text/css">
 	
 <meta charset="utf-8">
@@ -30,7 +29,8 @@
           <a class="dropdown-item" href="add_unit.php">Check Out</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="add_unit_in.php">Check In</a>
-          
+          <div class="dropdowm-divider"></div>
+          <a class="dropdown-item" href="onRentAddUnit.php">On Rent</a> 
           
         </div>
     </ul>
@@ -42,18 +42,25 @@
 	
  <!--Start of PHP -->
 	<?php
-//include('protected.php');
+	ini_set("display_errors",1);
+ error_reporting(E_ALL);
+include('protected.php');
 include('user.php');
 include('dbconfig.php'); 
+include('Functions.php');
       //if the user has the required access level they will be able to view the add unit button ie rentals only 
        
   
         
     //Open connection to the database and add error mode
 	
-	$sql = "select br,unitNum,OC,moving_date,customer,target_date,eta,lease,ins,cvor,pymt,binder,check_in,check_rec,training,delivery_instructions,notes, unitID from rental_item ORDER BY unitID";
+	$sql = "select br,stock,OC , moving_date ,customer,target_date,eta,lease,ins,cvor,pymt,binder,check_in,check_rec,training,delivery_instructions,notes, unitID from rental_item ORDER BY unitID";
+	
+	
 	$cmd = $conn->prepare($sql);
+	
     $cmd->execute(); 
+	
         //fetch all rows from the table and store them inside $units
 	$units = $cmd->fetchAll(); 
 	
@@ -62,7 +69,7 @@ include('dbconfig.php');
 	echo '<table class="table table-striped" >
 			<thead>
 					<th>BR.</th>
-					<th>Unit</th>
+					<th>Stock#</th>
                                         <th>OC</th> 
 					<th>Moving Date</th>
 					<th>Customer</th>
@@ -80,14 +87,37 @@ include('dbconfig.php');
 					<th>Notes</th>
 					<th>Edit</th>                                 
 					<th>Delete</th>
-					<th>Check In</th> 
+					<th>On Rent</th> 
 					</thead>
 					</tbody>';
 	//loop through $units and pull out individual columns and format them
-	foreach($units as $unit){ ?> 
-        <div class="scroll"> 
-		<tr><td><?=$unit['br']?></td>
-                    <td><?=$unit['unitNum']?></td>
+	foreach($units as $unit){
+//These codes stop MSSQL from putting in 1900-01-01 where it should be '' 
+	  if($unit['moving_date']=='1900-01-01') {
+			$unit['moving_date'] = null; }
+	   else{
+                $unit['moving_date']; } 
+	
+		if($unit['OC']=='1900-01-01') {
+		   $unit['OC'] = null; }
+		else { 
+		   $unit['OC'];} 
+				
+	   
+	    if($unit['target_date']=='1900-01-01') {
+		$unit['target_date'] = null; }
+             else{
+		$unit['target_date']; } 
+	   
+	    if($unit['eta']='1900-01-01') {
+			$unit['eta'] = null; }
+		else{
+			$unit['eta']; }  ?> 
+		
+		<div class="scroll"> 
+		<tr<?php if(closeToTarget($unit['target_date'])) echo'class="invalid"';?> >
+                    <td><?=$unit['br']?></td>
+                    <td><?=$unit['stock']?></td>
                     <td><?=$unit['OC']?></td>
                     <td><?=$unit['moving_date'] ?></td>
                     <td><?=$unit['customer'] ?></td>
@@ -107,22 +137,20 @@ include('dbconfig.php');
                     
                    <?php if(($_SESSION['access'] =2)){ ?> 
                     <!--add in editing buttons for editing deleting and checking in  -->         
-                    <td><a class="btn btn-secondary" href="add_unit.php?unitID=<?= $unit['unitID']?>">Edit</a></td>
-                    <td><a class="btn btn-secondary" href="delete_unit.php?unitID=<?= $unit['unitID']  ?>" onclick="return confirm('Are you sure?')">
+                    <td><a  class="btn btn-secondary" href="add_unit.php?unitID=<?= $unit['unitID']?>">Edit</a></td>
+                    <td><a  class="btn btn-secondary" href="delete_unit.php?unitID=<?= $unit['unitID']  ?>" onclick="return confirm('Are you sure?')">
                       Delete</a></td>
                     <td><a class="btn btn-secondary" href="move.php?unitID=<?= $unit['unitID'] ?>" onclick="return confirm('Do you want to Move to Check In?')">Check In </a></td></tr>
                
         </div>      
                    <?php } }                 
 			
-	echo '</tbody></table>';	
-       
-        //second table for check in create heading
-        
-        echo '<h1> Check In </h1>';
+	
+        echo '</tbody></table>';	
+         echo '<h1> On Rent </h1>';
        
         //create query for table then prepare the statment inside the connection variable and execute through the cmd variable 
-	$sql = "select br,unitNum,customer,clean_tank,check_in_pics,quote,returned ,unitID from rental_in ORDER BY unitID";
+	$sql = "select stock, customer, model, nextService ,annualInspection, contact, rentalStartDate ,unitID from on_rent ORDER BY unitID";
 	$cmd = $conn->prepare($sql);
         $cmd->execute(); 
 	$units = $cmd->fetchAll(); 
@@ -131,8 +159,77 @@ include('dbconfig.php');
 	
 	echo '<table class="table table-striped" >
 			<thead>
+					
+					<th>Stock#</th>
+					<th>Customer</th>
+					<th>Model</th>
+					<th>Next Service</th>
+					<th>Annual Inspection</th>
+                                        <th>Contact</th> 
+                                        <th>Rental Start Date</th> 
+					<th>Edit</th>
+                                        <th>Delete</th>
+					<th>Check In </th>
+					</thead>';
+	
+	foreach($units as $unit){
+            if($unit['nextService']=='1900-01-01') {
+			$unit['nextService'] = null; }
+	   else{
+			$unit['nextService']; } 
+           
+          if($unit['annualInspection']=='1900-01-01'){
+                    $unit['annualInspection'] = null; 
+                  } 
+             else{
+                   $unit['annualInspection'];
+                  } 
+                 
+           if($unit['rentalStartDate']=='1900-01-01'){
+                    $unit['rentalStartDate'] = null;      
+           }  else { 
+                    $unit['rentalStartDate'] ; 
+           }           
+                        ?> 
+		<!--loop through units and get individual columns --> 
+		<div class="scoll"> 
+		<tr>
+                    <td><?=$unit['stock']?></td>
+                    <td><?=$unit['customer']?></td>
+                     <td><?=$unit['model']?></td>
+                     <td><?=$unit['nextService']?> </td>
+                    <td><?=$unit['annualInspection']?> </td> 
+                     <td><?=$unit['contact']?></td>
+                     <td><?=$unit['rentalStartDate']?></td>
+                    <td><a class="btn btn-secondary"  href="add_unit_in.php?unitID=<?=$unit['unitID']?>">Edit</a></td>
+                    <td><a class="btn btn-secondary" href="delete_from_in.php?unitID=<?=$unit['unitID']?>" onclick="return confirm('Are you sure?');">Delete</a></td>
+                    <td><a class="btn btn-secondary" href="checkIn.php?unitID=<?= $unit['unitID'] ?>" onclick="return confirm('Do you want to Move to Check In?')">Check In </a></td></tr>
+                </tr>
+		</div >
+      <?php  }   ?> 
+        
+		
+	</tbody></table>
+        
+<?php 
+
+        //second table for check in create heading
+        
+        echo '<h1> Check In </h1>';
+       
+        //create query for table then prepare the statment inside the connection variable and execute through the cmd variable 
+	$sql = "select br,stock,customer,clean_tank,check_in_pics,quote,returned ,unitID from rental_in ORDER BY unitID";
+	$cmd = $conn->prepare($sql);
+        $cmd->execute(); 
+	$units = $cmd->fetchAll(); 
+	
+	//start the table and add the heading
+	
+        
+	echo '<table class="table table-striped" >
+			<thead>
 					<th>BR.</th>
-					<th>Unit</th>
+					<th>Stock#</th>
 					
 					<th>Customer</th>
 					<th>Clean Tank Cert</th>
@@ -148,7 +245,7 @@ include('dbconfig.php');
 		<!--loop through units and get individual columns --> 
 		<div class="scoll"> 
 		<tr><td><?=$unit['br']?></td>
-                    <td><?=$unit['unitNum']?></td>
+                    <td><?=$unit['stock']?></td>
                     <td><?=$unit['customer']?></td>
                      <td><input type="checkbox" value="yes"<?=$unit['clean_tank']==1 ? "checked='checked'" : ""?> disabled></td>
                      <td><input type="checkbox" value="yes"<?=$unit['check_in_pics']==1 ? "checked='checked'" : ""?> disabled></td>
